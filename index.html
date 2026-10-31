@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotify FASS - Reproductor Web de Música Completa</title>
+  <meta name="description" content="Spotify FASS: Reproductor de música estilo Spotify con canciones completas a máxima velocidad y sin publicidad.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#121212">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="https://open.spotifycdn.com/cdn/images/favicon32.b64eb1c1.png" type="image/png">
+  <!-- Google Fonts: Circular Std alternative (Inter + Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body class="theme-dark">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="#1ED760">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.306a.75.75 0 0 1-1.03.248c-2.822-1.724-6.375-2.115-10.56-1.16a.75.75 0 0 1-.334-1.462c4.58-1.045 8.52-.601 11.676 1.332a.75.75 0 0 1 .248 1.042zm1.47-3.267a.937.937 0 0 1-1.288.31c-3.23-1.986-8.153-2.56-11.97-1.402a.938.938 0 1 1-.545-1.794c4.364-1.325 9.79-.684 13.493 1.594a.938.938 0 0 1 .31 1.292zm.126-3.41c-3.874-2.3-10.264-2.513-13.97-1.388a1.125 1.125 0 1 1-.652-2.153c4.257-1.292 11.31-1.045 15.772 1.603a1.125 1.125 0 0 1-1.15 1.938z"/>
+        </svg>
+        <span class="brand-name">Spotify FASS</span>
+      </div>
+
+      <!-- Navigation links -->
+      <nav class="sidebar-nav">
+        <button class="nav-item active" id="nav-home" data-view="home">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h5v-6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6h5V7.577l-7.5-4.33zm-8.865 3.32a3 3 0 0 1 3-1.732L12 1.515l5.365 3.098a3 3 0 0 1 1.5 2.598V21a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-5h-2v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7.21a3 3 0 0 1 1.635-2.643z"/>
+          </svg>
+          <span>Inicio</span>
+        </button>
+
+        <button class="nav-item" id="nav-search" data-view="search">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M10.533 1.27893C5.42422 1.27893 1.27893 5.42422 1.27893 10.533C1.27893 15.6418 5.42422 19.7871 10.533 19.7871C12.7538 19.7871 14.7865 19.0063 16.3776 17.6983L21.3396 22.6603C21.7042 23.0249 22.2958 23.0249 22.6604 22.6603C23.025 22.2957 23.025 21.7041 22.6604 21.3395L17.6984 16.3775C19.0064 14.7864 19.7871 12.7537 19.7871 10.533C19.7871 5.42422 15.6418 1.27893 10.533 1.27893ZM3.14559 10.533C3.14559 6.45307 6.45307 3.14559 10.533 3.14559C14.613 3.14559 17.9205 6.45307 17.9205 10.533C17.9205 14.613 14.613 17.9205 10.533 17.9205C6.45307 17.9205 3.14559 14.613 3.14559 10.533Z"/>
+          </svg>
+          <span>Buscar</span>
+        </button>
+      </nav>
+
+      <!-- Library Section -->
+      <div class="sidebar-library">
+        <div class="library-header">
+          <div class="library-title" id="library-header-btn">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+              <path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1.5.866l5.5-3.175A1 1 0 0 0 21.5 17.825V6.175a1 1 0 0 0-.5-.866l-5.5-3.175zM16 4.732l3.5 2.02v10.496L16 19.268V4.732zM8 3a1 1 0 0 0-1 1v16a1 1 0 0 0 2 0V4a1 1 0 0 0-1-1z"/>
+            </svg>
+            <span>Tu biblioteca</span>
+          </div>
+          <button class="icon-btn-circle" id="btn-create-playlist" title="Crear playlist o importar">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M15.25 8a.75.75 0 0 1-.75.75H8.75v5.75a.75.75 0 0 1-1.5 0V8.75H1.5a.75.75 0 0 1 0-1.5h5.75V1.5a.75.75 0 0 1 1.5 0v5.75h5.75a.75.75 0 0 1 .75.75z"/></svg>
+          </button>
+        </div>
+
+        <!-- Quick filter pills -->
+        <div class="library-filters">
+          <button class="pill active" data-filter="all">Todo</button>
+          <button class="pill" data-filter="playlists">Playlists</button>
+          <button class="pill" data-filter="artists">Artistas</button>
+          <button class="pill" data-filter="downloaded">Descargas</button>
+        </div>
+
+        <!-- Library list -->
+        <div class="library-list" id="library-list">
+          <!-- Liked Songs item -->
+          <div class="playlist-row active" id="row-liked-songs" data-type="liked">
+            <div class="playlist-icon-liked">
+              <svg viewBox="0 0 16 16" width="18" height="18" fill="#ffffff"><path d="M1.69 2A4.582 4.582 0 0 1 8 2.023 4.583 4.583 0 0 1 11.88.817h.002a4.618 4.618 0 0 1 3.782 3.65 4.643 4.643 0 0 1-.824 3.774l-6.84 8.55-6.84-8.55A4.643 4.643 0 0 1 0 4.467 4.618 4.618 0 0 1 3.782.817H3.78A4.568 4.568 0 0 1 1.69 2z"/></svg>
+            </div>
+            <div class="playlist-info">
+              <span class="playlist-name">Tus me gusta</span>
+              <span class="playlist-meta"><span class="pin-icon">📌</span> Playlist • <span id="liked-count">12 canciones</span></span>
+            </div>
+          </div>
+          <!-- Downloaded Songs item (Spotify Offline) -->
+          <div class="playlist-row" id="row-downloaded-songs" data-type="downloaded">
+            <div class="playlist-icon-downloaded">
+              <svg viewBox="0 0 16 16" width="18" height="18" fill="#1ed760"><path d="M8 1a.75.75 0 0 1 .75.75v8.19l2.72-2.72a.75.75 0 1 1 1.06 1.06l-4 4a.75.75 0 0 1-1.06 0l-4-4a.75.75 0 1 1 1.06-1.06l2.72 2.72V1.75A.75.75 0 0 1 8 1zm-6 11.5a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75z"/></svg>
+            </div>
+            <div class="playlist-info">
+              <span class="playlist-name">Canciones descargadas</span>
+              <span class="playlist-meta"><span class="pin-icon">⚡</span> Modo Offline • <span id="downloaded-count">0 canciones</span></span>
+            </div>
+          </div>
+          <!-- Dynamic playlists rendered by JS -->
+          <div id="custom-playlists-container"></div>
+        </div>
+
+        <!-- Spotify Account Connection Card -->
+        <div class="spotify-account-card" id="spotify-card">
+          <div class="card-status-dot"></div>
+          <div class="card-text">
+            <h4 id="sp-status-title">Conectar Spotify</h4>
+            <p id="sp-status-desc">Importa tus playlists y favoritos de tu cuenta real.</p>
+          </div>
+          <button class="btn-spotify-connect" id="btn-open-spotify-modal">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.306a.75.75 0 0 1-1.03.248c-2.822-1.724-6.375-2.115-10.56-1.16a.75.75 0 0 1-.334-1.462c4.58-1.045 8.52-.601 11.676 1.332a.75.75 0 0 1 .248 1.042zm1.47-3.267a.937.937 0 0 1-1.288.31c-3.23-1.986-8.153-2.56-11.97-1.402a.938.938 0 1 1-.545-1.794c4.364-1.325 9.79-.684 13.493 1.594a.938.938 0 0 1 .31 1.292zm.126-3.41c-3.874-2.3-10.264-2.513-13.97-1.388a1.125 1.125 0 1 1-.652-2.153c4.257-1.292 11.31-1.045 15.772 1.603a1.125 1.125 0 0 1-1.15 1.938z"/></svg>
+            <span id="btn-spotify-label">Sincronizar</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN VIEW AREA -->
+    <main class="main-content" id="main-content">
+      
+      <!-- Sticky Top Header Bar -->
+      <header class="top-header" id="top-header">
+        <div class="header-nav-arrows">
+          <button class="nav-arrow" id="nav-back" title="Atrás" disabled>
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M11.03.47a.75.75 0 0 1 0 1.06L4.56 8l6.47 6.47a.75.75 0 1 1-1.06 1.06L2.44 8.53a.75.75 0 0 1 0-1.06L9.97.47a.75.75 0 0 1 1.06 0z"/></svg>
+          </button>
+          <button class="nav-arrow" id="nav-forward" title="Adelante" disabled>
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M4.97.47a.75.75 0 0 0 0 1.06L11.44 8 4.97 14.47a.75.75 0 1 0 1.06 1.06L13.56 8.53a.75.75 0 0 0 0-1.06L6.03.47a.75.75 0 0 0-1.06 0z"/></svg>
+          </button>
+        </div>
+
+        <!-- Search Bar in Header (Always accessible) -->
+        <div class="search-input-wrapper" id="header-search-wrapper">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#a7a7a7" class="search-icon"><path d="M10.533 1.27893C5.42422 1.27893 1.27893 5.42422 1.27893 10.533C1.27893 15.6418 5.42422 19.7871 10.533 19.7871C12.7538 19.7871 14.7865 19.0063 16.3776 17.6983L21.3396 22.6603C21.7042 23.0249 22.2958 23.0249 22.6604 22.6603C23.025 22.2957 23.025 21.7041 22.6604 21.3395L17.6984 16.3775C19.0064 14.7864 19.7871 12.7537 19.7871 10.533C19.7871 5.42422 15.6418 1.27893 10.533 1.27893ZM3.14559 10.533C3.14559 6.45307 6.45307 3.14559 10.533 3.14559C14.613 3.14559 17.9205 6.45307 17.9205 10.533C17.9205 14.613 14.613 17.9205 10.533 17.9205C6.45307 17.9205 3.14559 14.613 3.14559 10.533Z"/></svg>
+          <input type="text" id="global-search-input" placeholder="¿Qué quieres escuchar hoy?" autocomplete="off" spellcheck="false">
+          <button class="clear-search-btn hidden" id="clear-search-btn">✕</button>
+        </div>
+
+        <div class="header-right-actions">
+          <button class="btn-offline-mode" id="btn-toggle-offline" title="Activar/Desactivar Modo Offline">
+            <span class="offline-dot"></span>
+            <span id="offline-mode-text">Modo Online</span>
+          </button>
+
+          <div class="ad-free-badge">
+            <span class="shield-icon">🛡️</span>
+            <span>Sin Anuncios • Activo</span>
+          </div>
+
+          <button class="btn-import-url" id="btn-import-url" title="Pegar link de Spotify">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M4.75 3a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5zm-3 4a.75.75 0 0 0 0 1.5h12.5a.75.75 0 0 0 0-1.5H1.75zm3 4a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5z"/></svg>
+            <span>Importar Link</span>
+          </button>
+
+          <!-- User profile menu -->
+          <div class="user-avatar-btn" id="user-avatar-btn" title="Perfil / Configuración">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Avatar" id="user-avatar-img">
+            <span class="user-name" id="user-name-display">Premium User</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW: HOME (INICIO) -->
+      <section class="view-section active" id="view-home">
+        <!-- Dynamic Gradient Ambient Glow -->
+        <div class="ambient-glow" id="ambient-glow"></div>
+
+        <!-- Greeting section -->
+        <div class="home-greeting-container">
+          <h1 class="greeting-heading" id="greeting-text">Buenas tardes</h1>
+          
+          <!-- Quick Access Cards Grid (6 items) -->
+          <div class="quick-access-grid" id="quick-access-grid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Category: Hecho para ti -->
+        <div class="section-shelf">
+          <div class="shelf-header">
+            <h2>Hecho para ti</h2>
+            <button class="btn-see-all">Mostrar todos</button>
+          </div>
+          <div class="cards-carousel" id="carousel-made-for-you">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Category: Éxitos Globales y Tendencias -->
+        <div class="section-shelf">
+          <div class="shelf-header">
+            <h2>Éxitos globales y tendencias</h2>
+            <button class="btn-see-all">Mostrar todos</button>
+          </div>
+          <div class="cards-carousel" id="carousel-charts">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Category: Artistas Populares -->
+        <div class="section-shelf">
+          <div class="shelf-header">
+            <h2>Tus artistas favoritos</h2>
+            <button class="btn-see-all">Mostrar todos</button>
+          </div>
+          <div class="cards-carousel artists-carousel" id="carousel-artists">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: SEARCH (BUSCAR) -->
+      <section class="view-section" id="view-search">
+        <div class="search-page-container">
+          <!-- Mobile / In-Page Search Header -->
+          <div class="search-page-header">
+            <h1 class="search-page-heading">Buscar</h1>
+            <div class="search-input-wrapper in-page-search" id="page-search-wrapper">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="#a7a7a7" class="search-icon"><path d="M10.533 1.27893C5.42422 1.27893 1.27893 5.42422 1.27893 10.533C1.27893 15.6418 5.42422 19.7871 10.533 19.7871C12.7538 19.7871 14.7865 19.0063 16.3776 17.6983L21.3396 22.6603C21.7042 23.0249 22.2958 23.0249 22.6604 22.6603C23.025 22.2957 23.025 21.7041 22.6604 21.3395L17.6984 16.3775C19.0064 14.7864 19.7871 12.7537 19.7871 10.533C19.7871 5.42422 15.6418 1.27893 10.533 1.27893ZM3.14559 10.533C3.14559 6.45307 6.45307 3.14559 10.533 3.14559C14.613 3.14559 17.9205 6.45307 17.9205 10.533C17.9205 14.613 14.613 17.9205 10.533 17.9205C6.45307 17.9205 3.14559 14.613 3.14559 10.533Z"/></svg>
+              <input type="text" id="inline-search-input" placeholder="¿Qué quieres escuchar hoy? (Canciones, artistas o álbumes)" autocomplete="off" spellcheck="false">
+              <button class="clear-search-btn hidden" id="clear-inline-btn">✕</button>
+            </div>
+          </div>
+
+          <!-- Search Results Container (hidden by default) -->
+          <div class="search-results-wrapper hidden" id="search-results-wrapper">
+            <div class="search-results-heading-bar">
+              <h2 id="search-results-heading">Resultados de la búsqueda</h2>
+            </div>
+
+            <div class="search-top-result-row">
+              <div class="top-match-column">
+                <h3 class="search-section-subtitle">Resultado principal</h3>
+                <div class="top-match-card" id="top-match-card">
+                  <!-- Top song/artist match -->
+                </div>
+              </div>
+
+              <div class="top-songs-column">
+                <h3 class="search-section-subtitle">Canciones destacadas</h3>
+                <div class="top-songs-list" id="search-songs-list">
+                  <!-- Top track items -->
+                </div>
+              </div>
+            </div>
+
+            <!-- All Songs List (Full Catalog Results) -->
+            <div class="shelf-header" id="all-search-songs-header" style="margin-top: 2.2rem; margin-bottom: 0.8rem;">
+              <h2 id="all-songs-title">Todas las canciones encontradas</h2>
+            </div>
+            <div class="search-all-songs-table" id="search-all-songs-table">
+              <!-- Full 30 tracks list -->
+            </div>
+
+            <div class="shelf-header" id="search-albums-shelf" style="margin-top: 2.5rem; margin-bottom: 1rem;">
+              <h2>Álbumes y lanzamientos</h2>
+            </div>
+            <div class="cards-carousel" id="search-albums-carousel"></div>
+          </div>
+
+          <!-- Explore Categories (Default search screen) -->
+          <div class="explore-categories" id="explore-categories">
+            <h2>Explorar todo</h2>
+            <div class="genres-grid" id="genres-grid">
+              <!-- Rendered by JS: Pop, Urbano Latino, Hip-Hop, Rock, Dance/Electrónica, etc. -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: PLAYLIST / ALBUM DETAIL -->
+      <section class="view-section" id="view-playlist">
+        <div class="playlist-detail-header" id="playlist-hero">
+          <div class="playlist-hero-cover-container">
+            <img src="" alt="Cover" id="pl-hero-cover" class="playlist-hero-cover">
+          </div>
+          <div class="playlist-hero-meta">
+            <span class="playlist-badge" id="pl-hero-badge">PLAYLIST PÚBLICA</span>
+            <h1 class="playlist-hero-title" id="pl-hero-title">Nombre de Playlist</h1>
+            <p class="playlist-hero-desc" id="pl-hero-desc">Descripción de la lista de canciones...</p>
+            <div class="playlist-hero-footer">
+              <span class="pl-creator-avatar"></span>
+              <span class="pl-creator-name" id="pl-hero-creator">Spotify</span> • 
+              <span id="pl-hero-likes">1,420,329 me gusta</span> • 
+              <span id="pl-hero-track-count">50 canciones</span>, 
+              <span id="pl-hero-duration" class="dim">aprox. 2 h 45 min</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action bar -->
+        <div class="playlist-actions-bar">
+          <button class="btn-play-hero" id="btn-play-playlist" title="Reproducir playlist">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="#000000"><path d="M7.05 3.606l13.49 7.788a.7.7 0 010 1.212L7.05 20.394A.7.7 0 016 19.788V4.212a.7.7 0 011.05-.606z"/></svg>
+          </button>
+          <button class="action-icon-btn" id="btn-like-current-playlist" title="Guardar en biblioteca">
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </button>
+          <button class="action-icon-btn download-btn" id="btn-download-playlist" title="Descargar playlist para escuchar offline">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" id="svg-download-icon"><path d="M12 2a1 1 0 0 1 1 1v11.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 14.586V3a1 1 0 0 1 1-1zm-9 17a1 1 0 0 1 1-1h16a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z"/></svg>
+            <span class="download-spinner hidden" id="playlist-download-spinner"></span>
+          </button>
+          <button class="action-icon-btn" id="btn-download-options" title="Opciones de descarga">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><circle cx="4.5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19.5" cy="12" r="2"/></svg>
+          </button>
+        </div>
+
+        <!-- Tracklist table -->
+        <div class="tracklist-container">
+          <div class="tracklist-header-row">
+            <div class="col-index">#</div>
+            <div class="col-title">Título</div>
+            <div class="col-album">Álbum</div>
+            <div class="col-date">Añadida el</div>
+            <div class="col-actions" title="Descargar canción">⬇</div>
+            <div class="col-duration">
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm9-3.25V8H5.75a.75.75 0 0 1 0-1.5H7.5V4.75a.75.75 0 0 1 1.5 0z"/></svg>
+            </div>
+          </div>
+          <div class="tracklist-body" id="playlist-track-rows">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: LYRICS / LETRAS -->
+      <section class="view-section lyrics-view" id="view-lyrics">
+        <div class="lyrics-container">
+          <div class="lyrics-header">
+            <span class="lyrics-track-title" id="lyrics-title">Título</span>
+            <span class="lyrics-track-artist" id="lyrics-artist">Artista</span>
+          </div>
+          <div class="lyrics-scroll-area" id="lyrics-content">
+            <!-- Lyrics lines rendered dynamically -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- RIGHT DRAWER: QUEUE (COLA DE REPRODUCCIÓN) -->
+    <aside class="queue-drawer hidden" id="queue-drawer">
+      <div class="queue-header">
+        <h3>Cola de reproducción</h3>
+        <button class="icon-btn-circle" id="btn-close-queue">✕</button>
+      </div>
+      <div class="queue-now-playing">
+        <span class="queue-subheading">Sonando ahora</span>
+        <div class="queue-item current" id="queue-current-item">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+      <div class="queue-next-up">
+        <span class="queue-subheading">A continuación</span>
+        <div class="queue-list" id="queue-list-items">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- BOTTOM PERSISTENT PLAYER -->
+    <footer class="player-bar" id="player-bar">
+      <!-- Left: Track info -->
+      <div class="player-left">
+        <div class="now-playing-cover-wrapper" id="now-playing-cover-btn">
+          <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=120&q=80" alt="Cover" id="player-cover-img">
+          <div class="cover-hover-overlay">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/></svg>
+          </div>
+        </div>
+        <div class="now-playing-info">
+          <div class="track-title-scroll">
+            <span class="track-title" id="player-track-title">Selecciona una canción</span>
+          </div>
+          <span class="track-artist" id="player-track-artist">Spotify Ad-Free Stream</span>
+        </div>
+        <button class="btn-like-track" id="player-btn-like" title="Guardar en Tus me gusta">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" id="player-like-icon"><path d="M1.69 2A4.582 4.582 0 0 1 8 2.023 4.583 4.583 0 0 1 11.88.817h.002a4.618 4.618 0 0 1 3.782 3.65 4.643 4.643 0 0 1-.824 3.774l-6.84 8.55-6.84-8.55A4.643 4.643 0 0 1 0 4.467 4.618 4.618 0 0 1 3.782.817H3.78A4.568 4.568 0 0 1 1.69 2z"/></svg>
+        </button>
+      </div>
+
+      <!-- Center: Controls and Seek Bar -->
+      <div class="player-center">
+        <div class="player-controls">
+          <button class="ctrl-btn" id="ctrl-shuffle" title="Activar reproducción aleatoria">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M13.151.922a.75.75 0 1 0-1.06 1.06L13.109 3H11.16a3.75 3.75 0 0 0-2.873 1.34l-6.173 7.356A2.25 2.25 0 0 1 .39 12.5H0V14h.391a3.75 3.75 0 0 0 2.873-1.34l6.173-7.356a2.25 2.25 0 0 1 1.724-.804h1.947l-1.017 1.018a.75.75 0 0 0 1.06 1.06L15.98 3.75 13.15.922zM.391 3.5H0V2h.391c1.109 0 2.16.49 2.873 1.34L4.89 5.277l-.979 1.167-1.796-2.14A2.25 2.25 0 0 0 .39 3.5z"/><path d="m7.5 10.723.98-1.167.957 1.14a2.25 2.25 0 0 0 1.724.804h1.947l-1.017-1.018a.75.75 0 1 1 1.06-1.06l2.829 2.828-2.829 2.828a.75.75 0 1 1-1.06-1.06L13.109 13H11.16a3.75 3.75 0 0 1-2.873-1.34l-.787-.937z"/></svg>
+          </button>
+
+          <button class="ctrl-btn" id="ctrl-prev" title="Anterior">
+            <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M3.3 1a.7.7 0 0 1 .7.7v5.15l9.95-5.744a.7.7 0 0 1 1.05.606v12.576a.7.7 0 0 1-1.05.607L4 9.149V14.3a.7.7 0 0 1-.7.7H1.7a.7.7 0 0 1-.7-.7V1.7a.7.7 0 0 1 .7-.7h1.6z"/></svg>
+          </button>
+
+          <button class="ctrl-play-main" id="ctrl-play-pause" title="Reproducir">
+            <svg viewBox="0 0 16 16" width="18" height="18" fill="#000000" id="ctrl-play-icon"><path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"/></svg>
+          </button>
+
+          <button class="ctrl-btn" id="ctrl-next" title="Siguiente">
+            <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M12.7 1a.7.7 0 0 0-.7.7v5.15L2.05 1.107A.7.7 0 0 0 1 1.714v12.572a.7.7 0 0 0 1.05.607L12 9.149V14.3a.7.7 0 0 0 .7.7h1.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-1.6z"/></svg>
+          </button>
+
+          <button class="ctrl-btn" id="ctrl-repeat" title="Activar repetición">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M0 4.75A3.75 3.75 0 0 1 3.75 1h8.5A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.811 12h2.439a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25h-8.5A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75v-5z"/></svg>
+          </button>
+        </div>
+
+        <!-- Progress bar row -->
+        <div class="progress-bar-container">
+          <span class="time-label" id="current-time">0:00</span>
+          <div class="progress-slider-wrapper" id="progress-slider-wrapper">
+            <div class="progress-track">
+              <div class="progress-fill" id="progress-fill"></div>
+              <div class="progress-handle" id="progress-handle"></div>
+            </div>
+          </div>
+          <span class="time-label" id="total-time">0:00</span>
+        </div>
+      </div>
+
+      <!-- Right: Extra controls (Lyrics, Queue, Visualizer, Volume) -->
+      <div class="player-right">
+        <!-- Visualizer canvas indicator -->
+        <canvas id="mini-visualizer" width="50" height="20" title="Visualizador de audio reactivo"></canvas>
+
+        <button class="ctrl-btn" id="ctrl-lyrics" title="Letras">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M13.426 2.574a2.831 2.831 0 0 0-4.797 1.55l3.247 3.247a2.831 2.831 0 0 0 1.55-4.797zM10.5 8.5 7.5 5.5l-6 6V15h3.5l6-6h-.5z"/></svg>
+        </button>
+
+        <button class="ctrl-btn" id="ctrl-queue" title="Cola de reproducción">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M15 15H1v-1.5h14V15zm0-4.5H1V9h14v1.5zm-14-7A2.5 2.5 0 0 1 3.5 1h9a2.5 2.5 0 0 1 2.5 2.5v2a.75.75 0 0 1-.75.75h-12.5A.75.75 0 0 1 1 5.5v-2zm2.5-1A1 1 0 0 0 2.5 3.5v1h11v-1a1 1 0 0 0-1-1h-9z"/></svg>
+        </button>
+
+        <button class="ctrl-btn" id="ctrl-video" title="Modo Video / Canvas Oficial">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M0 3.75C0 2.784.784 2 1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75zM6.5 5.5a.5.5 0 0 1 .77-.42l4 2.5a.5.5 0 0 1 0 .84l-4 2.5A.5.5 0 0 1 6.5 10.5V5.5z"/></svg>
+        </button>
+
+        <div class="volume-container">
+          <button class="ctrl-btn" id="ctrl-volume-icon" title="Silenciar">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" id="volume-svg-icon"><path d="M9.741.85a.75.75 0 0 1 .375.65v13a.75.75 0 0 1-1.125.65l-6.925-4H0V4.85h2.066l6.925-4a.75.75 0 0 1 .75 0zm-1.241 2.2L3.13 6.25a.75.75 0 0 1-.38.1H1.5v3.3h1.25a.75.75 0 0 1 .38.1L8.5 12.95V3.05zM11.5 5.5a.75.75 0 0 1 .75.75 1.75 1.75 0 0 1 0 3.5.75.75 0 1 1 0 1.5 3.25 3.25 0 0 0 0-6.5.75.75 0 0 1-.75.75z"/><path d="M13.5 2.5a.75.75 0 0 1 .75.75 4.75 4.75 0 0 1 0 9.5.75.75 0 1 1 0 1.5 6.25 6.25 0 0 0 0-12.5.75.75 0 0 1-.75.75z"/></svg>
+          </button>
+          <div class="volume-slider-wrapper" id="volume-slider-wrapper">
+            <div class="volume-track">
+              <div class="volume-fill" id="volume-fill" style="width: 80%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <button class="ctrl-btn" id="ctrl-fullscreen" title="Pantalla completa">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M6.53 9.47a.75.75 0 0 1 0 1.06L3.81 13.25H6a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1-.75-.75V9.75a.75.75 0 0 1 1.5 0v2.19l2.72-2.72a.75.75 0 0 1 1.06 0zm2.94-2.94a.75.75 0 0 1 0-1.06L12.19 2.75H10a.75.75 0 0 1 0-1.5h4.25a.75.75 0 0 1 .75.75V6.25a.75.75 0 0 1-1.5 0V4.06l-2.72 2.72a.75.75 0 0 1-1.06 0z"/></svg>
+        </button>
+      </div>
+    </footer>
+
+    <!-- MODAL: SPOTIFY SYNC & SETTINGS -->
+    <div class="modal-overlay hidden" id="modal-spotify">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-with-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="#1ED760"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.306a.75.75 0 0 1-1.03.248c-2.822-1.724-6.375-2.115-10.56-1.16a.75.75 0 0 1-.334-1.462c4.58-1.045 8.52-.601 11.676 1.332a.75.75 0 0 1 .248 1.042zm1.47-3.267a.937.937 0 0 1-1.288.31c-3.23-1.986-8.153-2.56-11.97-1.402a.938.938 0 1 1-.545-1.794c4.364-1.325 9.79-.684 13.493 1.594a.938.938 0 0 1 .31 1.292zm.126-3.41c-3.874-2.3-10.264-2.513-13.97-1.388a1.125 1.125 0 1 1-.652-2.153c4.257-1.292 11.31-1.045 15.772 1.603a1.125 1.125 0 0 1-1.15 1.938z"/></svg>
+            <h2>Sincronizar con tu Cuenta de Spotify</h2>
+          </div>
+          <button class="modal-close-btn" id="btn-close-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-description">
+            Sincroniza tus <strong>playlists, canciones favoritas y artistas</strong> de Spotify para disfrutarlos aquí con reproducción completa y sin anuncios.
+          </p>
+
+          <div class="tabs-container">
+            <button class="modal-tab active" data-tab="tab-quick">Conectar Mi Cuenta</button>
+            <button class="modal-tab" data-tab="tab-import-link">Importar Playlist</button>
+            <button class="modal-tab" data-tab="tab-custom">Avanzado (Developer)</button>
+          </div>
+
+          <!-- TAB 1: CONECTAR MI CUENTA (1 CLIC DIRECTO) -->
+          <div class="tab-panel active" id="tab-quick">
+            <div class="user-detected-card">
+              <div class="user-detected-avatar">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Avatar">
+              </div>
+              <div class="user-detected-info">
+                <span class="user-detected-badge">Cuenta de Spotify detectada</span>
+                <h3 class="user-detected-name" id="sync-target-username">favioalejandrosuarez</h3>
+                <p class="user-detected-meta">201 canciones en Tus me gusta • B-rlin Mix • 6 Radios</p>
+              </div>
+            </div>
+
+            <p style="font-size: 0.85rem; color: var(--sp-text-secondary); line-height: 1.45;">
+              No necesitas crear claves de desarrollador ni contraseñas. Haz clic abajo para sincronizar tu perfil, tus listas y artistas favoritos automáticamente:
+            </p>
+
+            <button class="btn-spotify-large" id="btn-sync-favio-account">
+              Sincronizar como favioalejandrosuarez
+            </button>
+          </div>
+
+          <!-- TAB 2: IMPORTAR POR ENLACE -->
+          <div class="tab-panel" id="tab-import-link">
+            <p style="font-size: 0.88rem; color: var(--sp-text-secondary); line-height: 1.4;">
+              ¿Quieres importar una lista o canción específica de tu Spotify?
+            </p>
+            <ol style="font-size: 0.82rem; color: var(--sp-text-secondary); margin-left: 20px; display: flex; flex-direction: column; gap: 4px;">
+              <li>En tu Spotify abierto, haz clic en los <strong>3 puntos (...)</strong> o clic derecho en tu playlist.</li>
+              <li>Elige <strong>Compartir</strong> → <strong>Copiar enlace de la playlist</strong>.</li>
+              <li>Pégalo en el campo de abajo:</li>
+            </ol>
+            <div class="input-group">
+              <input type="url" id="spotify-direct-link-input" placeholder="https://open.spotify.com/playlist/... o /track/...">
+            </div>
+            <button class="btn-spotify-large" id="btn-submit-direct-link">
+              Importar Todas las Canciones de la Playlist
+            </button>
+          </div>
+
+          <!-- TAB 3: AVANZADO / DESARROLLADOR -->
+          <div class="tab-panel" id="tab-custom">
+            <p style="font-size: 0.82rem; color: var(--sp-text-secondary);">
+              Si eres desarrollador y configuraste tu propia app en <a href="https://developer.spotify.com/dashboard" target="_blank" style="color: #1ed760; text-decoration: underline;">Spotify Developer Dashboard</a>:
+            </p>
+            <div class="input-group">
+              <label for="custom-client-id">Spotify Client ID:</label>
+              <input type="text" id="custom-client-id" placeholder="Ej: 4a9f82d1c6...">
+            </div>
+            <button class="btn-spotify-large" id="btn-save-custom-client">
+              Guardar y Conectar OAuth
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: IMPORT SPOTIFY PLAYLIST LINK -->
+    <div class="modal-overlay hidden" id="modal-import">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Importar Playlist o Canción de Spotify</h2>
+          <button class="modal-close-btn" id="btn-close-import-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-description">Pega cualquier enlace público de Spotify (canción, álbum o playlist) para cargar y reproducir sin anuncios:</p>
+          <div class="input-group">
+            <input type="url" id="import-url-input" placeholder="https://open.spotify.com/playlist/... o /track/...">
+          </div>
+          <button class="btn-spotify-large" id="btn-submit-import">
+            Importar y Reproducir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: DOWNLOAD MANAGER (SPOTIFY PREMIUM OFFLINE) -->
+    <div class="modal-overlay hidden" id="modal-download">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-with-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="#1ED760"><path d="M12 2a1 1 0 0 1 1 1v11.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 14.586V3a1 1 0 0 1 1-1zm-9 17a1 1 0 0 1 1-1h16a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z"/></svg>
+            <h2>Descargas Spotify Premium Offline</h2>
+          </div>
+          <button class="modal-close-btn" id="btn-close-download-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-description" id="download-modal-desc">
+            Al igual que en <strong>Spotify Premium</strong>, puedes descargar pistas para escucharlas sin conexión a internet o guardarlas en tu ordenador.
+          </p>
+
+          <div class="download-options-container">
+            <div class="download-option-card active" id="opt-offline-cache">
+              <div class="opt-icon">⚡</div>
+              <div class="opt-info">
+                <h4>Modo Offline de la App (Recomendado)</h4>
+                <p>Almacena la música en el caché seguro del navegador (IndexedDB) para reproducir sin internet.</p>
+              </div>
+            </div>
+
+            <div class="download-option-card" id="opt-export-pc">
+              <div class="opt-icon">💾</div>
+              <div class="opt-info">
+                <h4>Descargar archivo de audio a tu PC</h4>
+                <p>Genera el archivo de audio para que puedas guardarlo en tu computadora o pasarlo a tu celular.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Download progress bar -->
+          <div class="download-progress-container hidden" id="download-progress-container">
+            <div class="download-status-text">
+              <span id="dl-status-label">Descargando canciones...</span>
+              <span id="dl-status-percent">0%</span>
+            </div>
+            <div class="dl-progress-track">
+              <div class="dl-progress-bar" id="dl-progress-bar"></div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 14px;">
+            <button class="btn-spotify-large" id="btn-start-download-confirm" style="flex: 1;">
+              Iniciar Descarga
+            </button>
+            <button class="btn-secondary-large" id="btn-cancel-download" style="padding: 14px 20px;">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YOUTUBE VIDEO CANVAS DOCK (AD-FREE FULL STREAM + VIDEO PIP) -->
+    <div id="yt-dock-container" class="yt-dock-container dock-minimized">
+      <div class="yt-dock-header">
+        <div class="yt-dock-title">
+          <span class="yt-live-dot"></span>
+          <span id="yt-dock-track-info">Modo Video • Canción Completa</span>
+        </div>
+        <button class="yt-dock-btn-close" id="yt-dock-close" title="Ocultar video">✕</button>
+      </div>
+      <div class="yt-dock-frame-wrapper">
+        <div id="yt-player-placeholder"></div>
+      </div>
+    </div>
+    <audio id="html5-audio-player" preload="auto" style="display:none;"></audio>
+
+    <!-- NOTIFICATION TOAST -->
+    <div class="toast-container" id="toast-container"></div>
+
+  </div>
+
+  <!-- Application JS -->
+  <script src="app.js?v=2.2"></script>
+</body>
+</html>
