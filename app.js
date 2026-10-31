@@ -432,9 +432,9 @@ function initNativeAudioEngine() {
 
   nativeAudio.addEventListener('error', (err) => {
     if (state.activeEngine === 'native') {
-      console.warn("Native audio error:", err);
+      console.warn("Native audio error, falling back to YouTube:", err);
       if (state.currentTrack) {
-        playSynthesizerFallback(state.currentTrack);
+        playTrackWithYouTube(state.currentTrack);
       }
     }
   });
@@ -685,13 +685,13 @@ async function playWithNativeAudio(track) {
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
       updatePlayPauseButtonUI();
       updateMediaSession(track);
-      showToast(`Reproduciendo tema completo: ${track.title} 🎵 (Segundo plano activo 📱)`, "success");
+      showToast(`Reproduciendo tema completo: ${track.title} 🎵`, "success");
     } catch (err) {
-      console.warn("Native audio play failed:", err);
-      playSynthesizerFallback(track);
+      console.warn("Native audio play failed, falling back to YouTube:", err);
+      playTrackWithYouTube(track);
     }
   } else {
-    playSynthesizerFallback(track);
+    playTrackWithYouTube(track);
   }
 }
 
@@ -713,29 +713,10 @@ async function recoverAndPlayTrack(track) {
 }
 
 function playSynthesizerFallback(track) {
-  if (!audioCtx) {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (AudioContextClass) audioCtx = new AudioContextClass();
+  // Always play the actual song via YouTube player - never an oscillator beep
+  if (track) {
+    playTrackWithYouTube(track);
   }
-  if (!audioCtx) return;
-
-  if (synthOsc) {
-    try { synthOsc.stop(); } catch(e) {}
-  }
-
-  synthOsc = audioCtx.createOscillator();
-  synthGain = audioCtx.createGain();
-  synthOsc.type = "triangle";
-  synthOsc.frequency.setValueAtTime(220, audioCtx.currentTime);
-  synthGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-
-  synthOsc.connect(synthGain);
-  synthGain.connect(audioCtx.destination);
-  synthOsc.start();
-
-  state.isPlaying = true;
-  updatePlayPauseButtonUI();
-  showToast(`Reproduciendo audio sintetizado: ${track.title}`, "info");
 }
 
 function togglePlayPause() {

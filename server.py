@@ -60,10 +60,15 @@ def get_audio_stream_url(video_id):
             return cached['url']
 
     ydl_opts = {
-        'format': '140/bestaudio[ext=m4a]/bestaudio',
+        'format': 'bestaudio/best',
         'quiet': True,
         'no_warnings': True,
-        'extract_flat': False
+        'extract_flat': False,
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'ios', 'web']
+            }
+        }
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
