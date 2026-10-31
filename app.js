@@ -986,6 +986,16 @@ async function executeGlobalSearch(query) {
         topCard.onclick = () => {
           playTrack(top, { id: 'search-results', name: `Búsqueda: ${cleanQ}`, tracks: tracks.map(t => t.id) });
         };
+
+        // Pre-warm top search result in background so tapping play starts instantly
+        if (top && !top.ytId) {
+          resolveYouTubeTrack(top).then(ytId => {
+            if (ytId) {
+              top.streamUrl = `/api/stream?v=${ytId}`;
+              fetch(`/api/stream-info?v=${ytId}`).catch(() => {});
+            }
+          });
+        }
       }
 
       // 2. Render Top 4 Featured Songs

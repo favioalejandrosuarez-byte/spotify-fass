@@ -64,9 +64,11 @@ def get_audio_stream_url(video_id):
         'quiet': True,
         'no_warnings': True,
         'extract_flat': False,
+        'check_formats': False,
+        'noplaylist': True,
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'ios', 'web']
+                'player_client': ['android']
             }
         }
     }
