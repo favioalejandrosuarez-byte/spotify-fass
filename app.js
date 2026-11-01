@@ -562,22 +562,12 @@ async function resolveYouTubeTrack(track) {
 }
 
 async function resolveTrackAudio(track) {
-  if (track.audioUrl) return track.audioUrl;
-  try {
-    const q = encodeURIComponent(`${track.artist} ${track.title}`);
-    const res = await fetch(`https://itunes.apple.com/search?term=${q}&entity=song&limit=1`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.results && data.results.length > 0 && data.results[0].previewUrl) {
-        track.audioUrl = data.results[0].previewUrl;
-        if (data.results[0].artworkUrl100) {
-          track.cover = data.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
-        }
-        return track.audioUrl;
-      }
-    }
-  } catch (e) {
-    console.warn("Resolution error:", e);
+  if (track.streamUrl) return track.streamUrl;
+  if (track.ytId) return `/api/stream?v=${track.ytId}`;
+  const ytId = await resolveYouTubeTrack(track);
+  if (ytId) {
+    track.ytId = ytId;
+    return `/api/stream?v=${ytId}`;
   }
   return null;
 }
@@ -637,21 +627,18 @@ async function playTrack(track, playlistContext = null) {
   renderQueueDrawer();
   highlightPlayingRow(track.id);
 
-  // If in Offline Mode or track is downloaded: prioritize instant native Audio (0s start + plays with screen locked)
-  if (state.isOfflineMode || state.downloadedTrackIds.has(track.id)) {
-    playWithNativeAudio(track);
-    return;
-  }
-
-  // Fast Instant Playback: starts in <0.5s via Global High-Speed CDN
+  // 1. Resolve full YouTube video ID (complete 3-5+ minute uncut song)
   const ytId = await resolveYouTubeTrack(track);
   if (ytId) {
-    if (ytPlayer && ytPlayerReady) {
-      playTrackWithYouTube(track);
-    } else {
-      ytPendingTrack = track;
-      playTrackWithYouTube(track);
-    }
+    track.ytId = ytId;
+  }
+
+  // 2. Play full uncut song with YouTube Engine
+  if (track.ytId && ytPlayer && ytPlayerReady) {
+    playTrackWithYouTube(track);
+  } else if (track.ytId) {
+    ytPendingTrack = track;
+    playTrackWithYouTube(track);
   } else {
     playWithNativeAudio(track);
   }
@@ -708,18 +695,17 @@ async function playWithNativeAudio(track) {
     try { ytPlayer.stopVideo(); } catch(e) {}
   }
 
-  // 1. High-fidelity Full Song Stream from server (/api/stream?v=...)
+  // Delete any accidental 30s preview audioUrl
+  delete track.audioUrl;
+
+  if (!track.ytId) {
+    await resolveYouTubeTrack(track);
+  }
+
+  // High-fidelity Full Song Stream from server (/api/stream?v=...)
   let audioStreamUrl = track.streamUrl;
   if (!audioStreamUrl && track.ytId) {
     audioStreamUrl = `/api/stream?v=${track.ytId}`;
-  }
-  // 2. Pre-defined audioUrl
-  if (!audioStreamUrl && track.audioUrl) {
-    audioStreamUrl = track.audioUrl;
-  }
-  // 3. Fallback resolution
-  if (!audioStreamUrl) {
-    audioStreamUrl = await resolveTrackAudio(track);
   }
 
   if (audioStreamUrl) {
@@ -731,12 +717,14 @@ async function playWithNativeAudio(track) {
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
       updatePlayPauseButtonUI();
       updateMediaSession(track);
-      showToast(`Reproduciendo tema completo: ${track.title} 🎵`, "success");
+      showToast(`Reproduciendo tema completo: ${track.title} 🎵 (Sin Cortes)`, "success");
+      return;
     } catch (err) {
       console.warn("Native audio play failed, falling back to YouTube:", err);
-      playTrackWithYouTube(track);
     }
-  } else {
+  }
+
+  if (track.ytId) {
     playTrackWithYouTube(track);
   }
 }
@@ -1000,7 +988,6 @@ async function executeGlobalSearch(query) {
         album: item.collectionName || 'Sencillo',
         duration: Math.floor((item.trackTimeMillis || 180000) / 1000),
         cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb') || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80',
-        audioUrl: item.previewUrl,
         color: '#1f3b2b',
         lyrics: [
           { time: 0, text: `♪ ${item.trackName} - ${item.artistName} ♪` },
@@ -1953,6 +1940,13 @@ function setupSpotifyIntegration() {
       });
     }
   } catch (e) {}
+
+  // Purge any accidental 30-second preview URLs from catalog
+  DEFAULT_CATALOG.forEach(t => {
+    delete t.audioUrl;
+  });
+  state.downloadedTrackIds.clear();
+  try { localStorage.removeItem('sp_downloaded_ids'); } catch(e) {}
 
   // Auto-heal any playlists that had fake/dummy tracks (like Agrupación Magios with Billie Eilish)
   repairCorruptedPlaylists();
