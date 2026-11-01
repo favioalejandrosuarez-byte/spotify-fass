@@ -368,6 +368,16 @@ function startYTProgressTracking() {
 
         updateActiveLyricLine();
 
+        // Automatic advance to next track when song finishes!
+        if (state.duration > 15 && cur >= (dur - 0.75) && !state.isAutoAdvancing) {
+          state.isAutoAdvancing = true;
+          setTimeout(() => {
+            handleTrackEnded();
+            setTimeout(() => { state.isAutoAdvancing = false; }, 2000);
+          }, 300);
+          return;
+        }
+
         // Smart Pre-buffering: at 4s of playback, pre-fetch next track in queue automatically
         if (state.currentTime >= 4 && !state.hasPrefetchedNext) {
           state.hasPrefetchedNext = true;
@@ -612,11 +622,15 @@ async function playTrack(track, playlistContext = null) {
   updatePlayerLikeButton();
 
   // Rebuild queue
-  if (playlistContext) {
-    state.currentPlaylist = playlistContext;
-    const tracks = playlistContext.tracks.map(id => getTrackById(id)).filter(Boolean);
-    state.queue = tracks;
-    state.queueIndex = tracks.findIndex(t => t.id === track.id);
+  const activePl = playlistContext || state.currentPlaylist;
+  if (activePl && activePl.tracks && activePl.tracks.length > 0) {
+    state.currentPlaylist = activePl;
+    const tracks = activePl.tracks.map(id => typeof id === 'object' ? id : getTrackById(id)).filter(Boolean);
+    if (tracks.length > 0) {
+      state.queue = tracks;
+      const foundIdx = tracks.findIndex(t => t.id === track.id);
+      state.queueIndex = foundIdx >= 0 ? foundIdx : 0;
+    }
   } else if (state.queue.length === 0 || !state.queue.find(t => t.id === track.id)) {
     state.queue = [track, ...DEFAULT_CATALOG.filter(t => t.id !== track.id)];
     state.queueIndex = 0;
@@ -798,27 +812,37 @@ function handleTrackEnded() {
 }
 
 function playNextTrack() {
+  const activePl = state.currentPlaylist;
+  if (activePl && activePl.tracks && (state.queue.length <= 1 || state.queue.length !== activePl.tracks.length)) {
+    const tracks = activePl.tracks.map(id => typeof id === 'object' ? id : getTrackById(id)).filter(Boolean);
+    if (tracks.length > 0) {
+      state.queue = tracks;
+      const curIdx = state.queue.findIndex(t => t.id === state.currentTrack?.id);
+      state.queueIndex = curIdx >= 0 ? curIdx : 0;
+    }
+  }
+
   if (state.queue.length === 0) return;
 
   if (state.shuffle) {
-    const randomIndex = Math.floor(Math.random() * state.queue.length);
-    state.queueIndex = randomIndex;
+    let nextIdx;
+    do {
+      nextIdx = Math.floor(Math.random() * state.queue.length);
+    } while (nextIdx === state.queueIndex && state.queue.length > 1);
+    state.queueIndex = nextIdx;
   } else {
     state.queueIndex++;
+    // When queue reaches the end of the playlist, loop back to the first track (non-stop continuous playback)
     if (state.queueIndex >= state.queue.length) {
-      if (state.repeatMode === 1) {
-        state.queueIndex = 0;
-      } else {
-        state.isPlaying = false;
-        updatePlayPauseButtonUI();
-        return;
-      }
+      state.queueIndex = 0;
     }
   }
 
   const nextTrack = state.queue[state.queueIndex];
   if (nextTrack) {
-    playTrack(nextTrack);
+    console.log("[Auto-Play] Reproduciendo automáticamente la siguiente canción:", nextTrack.title);
+    showToast(`Siguiente canción: ${nextTrack.title} ⏭️`, "info");
+    playTrack(nextTrack, state.currentPlaylist);
   }
 }
 
@@ -936,11 +960,17 @@ async function executeGlobalSearch(query) {
   // 1. Immediately switch view to Search
   switchView('search');
 
-  // Synchronize both inputs
+  // Synchronize both inputs without deleting spaces being typed
   const globalInput = document.getElementById('global-search-input');
   const inlineInput = document.getElementById('inline-search-input');
-  if (globalInput && globalInput.value !== cleanQ) globalInput.value = cleanQ;
-  if (inlineInput && inlineInput.value !== cleanQ) inlineInput.value = cleanQ;
+  if (document.activeElement === globalInput) {
+    if (inlineInput && inlineInput.value !== query) inlineInput.value = query;
+  } else if (document.activeElement === inlineInput) {
+    if (globalInput && globalInput.value !== query) globalInput.value = query;
+  } else {
+    if (globalInput && globalInput.value !== query) globalInput.value = query;
+    if (inlineInput && inlineInput.value !== query) inlineInput.value = query;
+  }
 
   const resultsWrapper = document.getElementById('search-results-wrapper');
   const exploreCategories = document.getElementById('explore-categories');
@@ -2685,7 +2715,18 @@ function closeImportModal() {
 
 // Helpers
 function getTrackById(id) {
-  return DEFAULT_CATALOG.find(t => t.id === id);
+  if (!id) return null;
+  if (typeof id === 'object' && id.title) return id;
+  const inCat = DEFAULT_CATALOG.find(t => t.id === id);
+  if (inCat) return inCat;
+  for (const pl of state.customPlaylists) {
+    if (pl && pl.tracks) {
+      for (const t of pl.tracks) {
+        if (typeof t === 'object' && t.id === id) return t;
+      }
+    }
+  }
+  return null;
 }
 
 function formatSeconds(secs) {
