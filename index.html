@@ -7,8 +7,10 @@
   <meta name="description" content="Spotify FASS: Reproductor de música estilo Spotify con canciones completas a máxima velocidad y sin publicidad.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Spotify FASS">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#121212">
+  <link rel="apple-touch-icon" href="https://open.spotifycdn.com/cdn/images/favicon32.b64eb1c1.png">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="https://open.spotifycdn.com/cdn/images/favicon32.b64eb1c1.png" type="image/png">
   <!-- Google Fonts: Circular Std alternative (Inter + Plus Jakarta Sans) -->
@@ -17,6 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="theme-dark">
   <div class="app-container">
@@ -44,6 +47,17 @@
             <path d="M10.533 1.27893C5.42422 1.27893 1.27893 5.42422 1.27893 10.533C1.27893 15.6418 5.42422 19.7871 10.533 19.7871C12.7538 19.7871 14.7865 19.0063 16.3776 17.6983L21.3396 22.6603C21.7042 23.0249 22.2958 23.0249 22.6604 22.6603C23.025 22.2957 23.025 21.7041 22.6604 21.3395L17.6984 16.3775C19.0064 14.7864 19.7871 12.7537 19.7871 10.533C19.7871 5.42422 15.6418 1.27893 10.533 1.27893ZM3.14559 10.533C3.14559 6.45307 6.45307 3.14559 10.533 3.14559C14.613 3.14559 17.9205 6.45307 17.9205 10.533C17.9205 14.613 14.613 17.9205 10.533 17.9205C6.45307 17.9205 3.14559 14.613 3.14559 10.533Z"/>
           </svg>
           <span>Buscar</span>
+        </button>
+
+        <button class="nav-item" id="nav-gdrive" data-view="gdrive">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+            <path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5L7.71 3.5z" fill="#0066DA"/>
+            <path d="M14.57 3.5H7.71l6.55 11.5h6.86L14.57 3.5z" fill="#00AC47"/>
+            <path d="M22.85 15l-3.43 6H4.58L8 15h14.85z" fill="#EA4335"/>
+            <path d="M14.57 3.5l3.43 6-6.85 11.5-3.44-6 6.86-11.5z" fill="#FFBA00"/>
+          </svg>
+          <span>Google Drive</span>
+          <span class="badge-gdrive">☁️ Nube</span>
         </button>
       </nav>
 
@@ -329,6 +343,127 @@
             <!-- Lyrics lines rendered dynamically -->
           </div>
         </div>
+      <!-- VIEW: GOOGLE DRIVE (ALMACENAMIENTO PERMANENTE) -->
+      <section class="view-section" id="view-gdrive">
+        <div class="gdrive-container">
+          <!-- Hero Header -->
+          <div class="gdrive-hero">
+            <div class="gdrive-hero-badge">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5L7.71 3.5z" fill="#0066DA"/>
+                <path d="M14.57 3.5H7.71l6.55 11.5h6.86L14.57 3.5z" fill="#00AC47"/>
+                <path d="M22.85 15l-3.43 6H4.58L8 15h14.85z" fill="#EA4335"/>
+                <path d="M14.57 3.5l3.43 6-6.85 11.5-3.44-6 6.86-11.5z" fill="#FFBA00"/>
+              </svg>
+              <span>Google Drive Cloud • 100% Permanente</span>
+            </div>
+            <h1 class="gdrive-hero-title">Mi Música en Google Drive</h1>
+            <p class="gdrive-hero-desc">
+              Tus canciones guardadas para siempre en tu propia cuenta de Google. Reproducción instantánea en 0.2s con velocidad de fibra óptica y sin depender de ningún servidor externo.
+            </p>
+          </div>
+
+          <!-- Disconnected State Card -->
+          <div class="gdrive-card-disconnected" id="gdrive-card-disconnected">
+            <div class="gdrive-connect-box">
+              <div class="gdrive-big-logo">
+                <svg viewBox="0 0 87.3 78" width="68" height="60">
+                  <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                  <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+                  <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+                  <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.25z" fill="#00832d"/>
+                  <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.25z" fill="#2684fc"/>
+                  <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+                </svg>
+              </div>
+              <h2>Conecta tu cuenta de Google</h2>
+              <p>Almacena canciones en tu carpeta privada <strong>Spotify_FASS</strong> de Google Drive. Nunca se borran, no tienen límites de tiempo y reproducen al instante.</p>
+              
+              <div class="gdrive-benefits-list">
+                <div class="gdrive-benefit-item">
+                  <span class="benefit-icon">⚡</span>
+                  <div>
+                    <strong>Arranque en 0.2 segundos</strong>
+                    <p>Google entrega el archivo directo con tu ancho de banda de alta velocidad.</p>
+                  </div>
+                </div>
+                <div class="gdrive-benefit-item">
+                  <span class="benefit-icon">🔒</span>
+                  <div>
+                    <strong>Guardado permanente para siempre</strong>
+                    <p>Aunque cierres la página, apagues tu iPhone o cambies de dispositivo, tus temas siguen en tu nube.</p>
+                  </div>
+                </div>
+                <div class="gdrive-benefit-item">
+                  <span class="benefit-icon">📱</span>
+                  <div>
+                    <strong>Reproducción en segundo plano nativa</strong>
+                    <p>Al ser audio directo de Google, iOS no lo bloquea al apagar la pantalla.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="gdrive-auth-actions">
+                <button class="btn-google-signin" id="btn-gdrive-connect">
+                  <svg viewBox="0 0 48 48" width="22" height="22">
+                    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                    <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+                    <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+                    <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+                  </svg>
+                  <span>Iniciar sesión con Google</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Connected State View -->
+          <div class="gdrive-card-connected hidden" id="gdrive-card-connected">
+            <div class="gdrive-user-bar">
+              <div class="gdrive-user-meta">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" id="gdrive-user-avatar" class="gdrive-avatar" alt="Avatar">
+                <div>
+                  <h3 id="gdrive-user-name">favioalejandrosuarez</h3>
+                  <p id="gdrive-user-email">Google Drive Conectado • Carpeta: /Spotify_FASS</p>
+                </div>
+              </div>
+              <div class="gdrive-user-actions">
+                <button class="btn-gdrive-sync" id="btn-gdrive-sync" title="Actualizar canciones de Drive">
+                  🔄 Sincronizar
+                </button>
+                <button class="btn-gdrive-disconnect" id="btn-gdrive-disconnect">
+                  Desconectar
+                </button>
+              </div>
+            </div>
+
+            <!-- Upload new song to Drive banner -->
+            <div class="gdrive-upload-zone">
+              <div class="gdrive-upload-info">
+                <h4>☁️ Subir canciones a tu Google Drive</h4>
+                <p>Arrastra archivos de audio (.mp3, .m4a, .wav) o pulsa para guardarlos en tu Drive para siempre.</p>
+              </div>
+              <label class="btn-gdrive-upload" for="gdrive-file-input">
+                📂 Seleccionar Archivos
+                <input type="file" id="gdrive-file-input" multiple accept="audio/*" style="display:none;">
+              </label>
+            </div>
+
+            <!-- Google Drive Songs List -->
+            <div class="gdrive-songs-header">
+              <h2>Canciones en tu Google Drive (<span id="gdrive-tracks-count">0</span>)</h2>
+              <button class="btn-play-hero" id="btn-play-all-gdrive" title="Reproducir todo de Google Drive" style="width: 44px; height: 44px;">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="#000"><path d="M7.05 3.606l13.49 7.788a.7.7 0 010 1.212L7.05 20.394A.7.7 0 016 19.788V4.212a.7.7 0 011.05-.606z"/></svg>
+              </button>
+            </div>
+
+            <div class="tracklist-container">
+              <div class="tracklist-body" id="gdrive-track-rows">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
 
@@ -460,52 +595,37 @@
           </p>
 
           <div class="tabs-container">
-            <button class="modal-tab active" data-tab="tab-quick">Conectar Mi Cuenta</button>
-            <button class="modal-tab" data-tab="tab-import-link">Importar Playlist</button>
-            <button class="modal-tab" data-tab="tab-custom">Avanzado (Developer)</button>
+            <button class="modal-tab active" data-tab="tab-import-link">Importar Mis Playlists</button>
+            <button class="modal-tab" data-tab="tab-custom">Conectar Cuenta Completa (OAuth)</button>
           </div>
 
-          <!-- TAB 1: CONECTAR MI CUENTA (1 CLIC DIRECTO) -->
-          <div class="tab-panel active" id="tab-quick">
-            <div class="user-detected-card">
-              <div class="user-detected-avatar">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Avatar">
-              </div>
-              <div class="user-detected-info">
-                <span class="user-detected-badge">Cuenta de Spotify detectada</span>
-                <h3 class="user-detected-name" id="sync-target-username">favioalejandrosuarez</h3>
-                <p class="user-detected-meta">201 canciones en Tus me gusta • B-rlin Mix • 6 Radios</p>
-              </div>
+          <!-- TAB 1: IMPORTAR PLAYLISTS REALES DE SPOTIFY -->
+          <div class="tab-panel active" id="tab-import-link">
+            <div style="background: rgba(30, 215, 96, 0.08); border: 1px solid rgba(30, 215, 96, 0.25); border-radius: 12px; padding: 14px 18px; margin-bottom: 18px;">
+              <h3 style="color: #1ed760; font-size: 1rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                <span>🎵</span> Extraer tus listas reales de Spotify
+              </h3>
+              <p style="font-size: 0.85rem; color: var(--sp-text-secondary); line-height: 1.45; margin: 0;">
+                Extrae cualquier playlist, carpeta o álbum de tu Spotify con todas sus canciones reales, títulos, artistas y carátulas originales sin publicidad.
+              </p>
             </div>
 
-            <p style="font-size: 0.85rem; color: var(--sp-text-secondary); line-height: 1.45;">
-              No necesitas crear claves de desarrollador ni contraseñas. Haz clic abajo para sincronizar tu perfil, tus listas y artistas favoritos automáticamente:
-            </p>
-
-            <button class="btn-spotify-large" id="btn-sync-favio-account">
-              Sincronizar como favioalejandrosuarez
-            </button>
-          </div>
-
-          <!-- TAB 2: IMPORTAR POR ENLACE -->
-          <div class="tab-panel" id="tab-import-link">
-            <p style="font-size: 0.88rem; color: var(--sp-text-secondary); line-height: 1.4;">
-              ¿Quieres importar una lista o canción específica de tu Spotify?
-            </p>
-            <ol style="font-size: 0.82rem; color: var(--sp-text-secondary); margin-left: 20px; display: flex; flex-direction: column; gap: 4px;">
-              <li>En tu Spotify abierto, haz clic en los <strong>3 puntos (...)</strong> o clic derecho en tu playlist.</li>
-              <li>Elige <strong>Compartir</strong> → <strong>Copiar enlace de la playlist</strong>.</li>
-              <li>Pégalo en el campo de abajo:</li>
+            <ol style="font-size: 0.84rem; color: var(--sp-text-secondary); margin-left: 20px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px;">
+              <li>En tu Spotify (celular o PC), ve a tu playlist, carpeta o álbum favorito.</li>
+              <li>Toca los <strong>3 puntos (...)</strong> ➔ <strong>Compartir</strong> ➔ <strong>Copiar enlace</strong>.</li>
+              <li>Pega uno o varios enlaces abajo (puedes pegar varias líneas a la vez para traer todas tus carpetas):</li>
             </ol>
-            <div class="input-group">
-              <input type="url" id="spotify-direct-link-input" placeholder="https://open.spotify.com/playlist/... o /track/...">
+
+            <div class="input-group" style="margin-bottom: 14px;">
+              <textarea id="spotify-direct-link-input" placeholder="https://open.spotify.com/playlist/...&#10;https://open.spotify.com/album/...&#10;https://open.spotify.com/playlist/..." rows="3" style="width: 100%; padding: 12px 14px; font-size: 0.92rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; resize: vertical;"></textarea>
             </div>
-            <button class="btn-spotify-large" id="btn-submit-direct-link">
-              Importar Todas las Canciones de la Playlist
+
+            <button class="btn-spotify-large" id="btn-submit-direct-link" style="width: 100%; font-weight: 700;">
+              📥 Extraer y Agregar a Mi Biblioteca
             </button>
           </div>
 
-          <!-- TAB 3: AVANZADO / DESARROLLADOR -->
+          <!-- TAB 2: AVANZADO / DESARROLLADOR OAUTH -->
           <div class="tab-panel" id="tab-custom">
             <p style="font-size: 0.82rem; color: var(--sp-text-secondary);">
               Si eres desarrollador y configuraste tu propia app en <a href="https://developer.spotify.com/dashboard" target="_blank" style="color: #1ed760; text-decoration: underline;">Spotify Developer Dashboard</a>:
@@ -618,6 +738,6 @@
   </div>
 
   <!-- Application JS -->
-  <script src="app.js?v=2.4"></script>
+  <script src="app.js?v=3.0"></script>
 </body>
 </html>
