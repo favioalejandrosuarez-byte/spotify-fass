@@ -586,9 +586,12 @@ async function resolveYouTubeTrack(track) {
     return track.ytId;
   }
 
-  // 1. API: /api/yt-search?q=...
+  // 1. API: /api/yt-search?q=... con timeout rápido de 3.5s para no bloquear
   try {
-    const res = await fetch(`/api/yt-search?q=${encodeURIComponent(`${track.artist} ${track.title}`)}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const res = await fetch(`/api/yt-search?q=${encodeURIComponent(`${track.artist} ${track.title}`)}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
     if (res.ok) {
       const data = await res.json();
       if (data.status === 'ok' && data.videoId) {
@@ -600,23 +603,8 @@ async function resolveYouTubeTrack(track) {
       }
     }
   } catch (e) {
-    console.warn("Local API search error, falling back...", e);
+    console.warn("Local API search error or timeout, falling back...", e);
   }
-
-  // 1b. Direct Render API fallback (ultra-reliable backup)
-  try {
-    const res = await fetch(`https://spotify-fass.onrender.com/api/yt-search?q=${encodeURIComponent(`${track.artist} ${track.title}`)}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.status === 'ok' && data.videoId) {
-        track.ytId = data.videoId;
-        track.allYtIds = data.allIds;
-        ytCache.set(qKey, track.ytId);
-        saveYtCache();
-        return track.ytId;
-      }
-    }
-  } catch (e) {}
 
   // 2. Public Invidious instance fallback
   const publicInstances = [
@@ -627,7 +615,7 @@ async function resolveYouTubeTrack(track) {
   for (const inst of publicInstances) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
       const res = await fetch(`${inst}/api/v1/search?q=${encodeURIComponent(`${track.artist} ${track.title}`)}&type=video`, { signal: controller.signal });
       clearTimeout(timeoutId);
       if (res.ok) {
@@ -635,10 +623,18 @@ async function resolveYouTubeTrack(track) {
         if (data && data.length > 0 && data[0].videoId) {
           track.ytId = data[0].videoId;
           ytCache.set(qKey, track.ytId);
+          saveYtCache();
           return track.ytId;
         }
       }
     } catch (err) {}
+  }
+
+  // 3. Fallback de catálogo garantizado si falla la búsqueda remota
+  const fallback = DEFAULT_CATALOG[Math.floor(Math.random() * DEFAULT_CATALOG.length)];
+  if (fallback && fallback.ytId) {
+    track.ytId = fallback.ytId;
+    return track.ytId;
   }
 
   return null;
@@ -717,25 +713,29 @@ async function playTrack(track, playlistContext = null) {
   renderQueueDrawer();
   highlightPlayingRow(track.id);
 
-  // 1. Resolve full YouTube video ID (complete 3-5+ minute uncut song)
-  const ytId = await resolveYouTubeTrack(track);
-  if (ytId) {
-    track.ytId = ytId;
-  }
-
-  // 2. Play full uncut song with YouTube Engine
-  if (track.ytId && ytPlayer && ytPlayerReady) {
-    playTrackWithYouTube(track);
-  } else if (track.ytId) {
-    ytPendingTrack = track;
-    playTrackWithYouTube(track);
+  // 1. Si ya tiene ytId, reproducir de forma 100% SÍNCRONA (crucial para iOS Safari y CarPlay)
+  if (track.ytId) {
+    if (ytPlayer && ytPlayerReady) {
+      playTrackWithYouTube(track);
+    } else {
+      ytPendingTrack = track;
+    }
   } else {
-    playWithNativeAudio(track);
+    // Si aún no tiene ytId, resolver de inmediato y reproducir
+    resolveYouTubeTrack(track).then(ytId => {
+      if (ytId) {
+        track.ytId = ytId;
+        if (ytPlayer && ytPlayerReady && state.currentTrack?.id === track.id) {
+          playTrackWithYouTube(track);
+        }
+      } else {
+        playWithNativeAudio(track);
+      }
+    });
   }
 
-  // Trigger smart pre-fetch for the next track in queue after 1.5s
-  state.hasPrefetchedNext = false;
-  setTimeout(() => prefetchNextTrackInQueue(), 1500);
+  // Pre-resolver en segundo plano la siguiente y anterior pista para que al presionar Next/Prev sea 100% instantáneo
+  prefetchSurroundingTracks();
 
   // Update lyrics if visible
   if (state.lyricsActive) {
@@ -887,18 +887,35 @@ function handleTrackEnded() {
   }
 }
 
+function prefetchSurroundingTracks() {
+  if (!state.queue || state.queue.length <= 1) return;
+  const nextIdx = (state.queueIndex + 1) % state.queue.length;
+  const prevIdx = (state.queueIndex - 1 + state.queue.length) % state.queue.length;
+  const nextTrack = state.queue[nextIdx];
+  const prevTrack = state.queue[prevIdx];
+  if (nextTrack && !nextTrack.ytId) {
+    resolveYouTubeTrack(nextTrack).then(id => { if (id) nextTrack.ytId = id; });
+  }
+  if (prevTrack && !prevTrack.ytId) {
+    resolveYouTubeTrack(prevTrack).then(id => { if (id) prevTrack.ytId = id; });
+  }
+}
+
 function playNextTrack() {
   const activePl = state.currentPlaylist;
-  if (activePl && activePl.tracks && (state.queue.length <= 1 || state.queue.length !== activePl.tracks.length)) {
+  if (activePl && activePl.tracks && activePl.tracks.length > 1) {
     const tracks = activePl.tracks.map(id => typeof id === 'object' ? id : getTrackById(id)).filter(Boolean);
     if (tracks.length > 0) {
       state.queue = tracks;
-      const curIdx = state.queue.findIndex(t => t.id === state.currentTrack?.id);
-      state.queueIndex = curIdx >= 0 ? curIdx : 0;
     }
   }
 
-  if (state.queue.length === 0) return;
+  // Si la cola está vacía o solo tiene 1 canción, poblarla con el catálogo para que siempre avance
+  if (!state.queue || state.queue.length <= 1) {
+    const cur = state.currentTrack;
+    state.queue = cur ? [cur, ...DEFAULT_CATALOG.filter(t => t.id !== cur.id)] : [...DEFAULT_CATALOG];
+    state.queueIndex = 0;
+  }
 
   if (state.shuffle) {
     let nextIdx;
@@ -908,7 +925,6 @@ function playNextTrack() {
     state.queueIndex = nextIdx;
   } else {
     state.queueIndex++;
-    // When queue reaches the end of the playlist, loop back to the first track (non-stop continuous playback)
     if (state.queueIndex >= state.queue.length) {
       state.queueIndex = 0;
     }
@@ -916,14 +932,18 @@ function playNextTrack() {
 
   const nextTrack = state.queue[state.queueIndex];
   if (nextTrack) {
-    console.log("[Auto-Play] Reproduciendo automáticamente la siguiente canción:", nextTrack.title);
+    console.log("[MediaSession] Siguiente canción ejecutada:", nextTrack.title);
     showToast(`Siguiente canción: ${nextTrack.title} ⏭️`, "info");
     playTrack(nextTrack, state.currentPlaylist);
   }
 }
 
 function playPrevTrack() {
-  if (state.queue.length === 0) return;
+  if (!state.queue || state.queue.length <= 1) {
+    const cur = state.currentTrack;
+    state.queue = cur ? [cur, ...DEFAULT_CATALOG.filter(t => t.id !== cur.id)] : [...DEFAULT_CATALOG];
+    state.queueIndex = 0;
+  }
 
   state.queueIndex--;
   if (state.queueIndex < 0) {
@@ -932,7 +952,7 @@ function playPrevTrack() {
 
   const prevTrack = state.queue[state.queueIndex];
   if (prevTrack) {
-    console.log("[Auto-Play] Cambiando a pista anterior:", prevTrack.title);
+    console.log("[MediaSession] Canción anterior ejecutada:", prevTrack.title);
     showToast(`Canción anterior: ${prevTrack.title} ⏮️`, "info");
     playTrack(prevTrack, state.currentPlaylist);
   }
