@@ -443,6 +443,20 @@ function initNativeAudioEngine() {
       state.isPlaying = true;
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
       updatePlayPauseButtonUI();
+      if (state.currentTrack) {
+        updateMediaSession(state.currentTrack);
+      }
+    }
+  });
+
+  nativeAudio.addEventListener('playing', () => {
+    if (state.activeEngine === 'native') {
+      state.isPlaying = true;
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+      updatePlayPauseButtonUI();
+      if (state.currentTrack) {
+        updateMediaSession(state.currentTrack);
+      }
     }
   });
 
@@ -470,39 +484,98 @@ function initNativeAudioEngine() {
   });
 }
 
+function initMediaSession() {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    if ('audioSession' in navigator) {
+      navigator.audioSession.type = 'playback';
+    }
+  } catch (e) {}
+
+  try {
+    navigator.mediaSession.setActionHandler('play', () => togglePlayPause());
+    navigator.mediaSession.setActionHandler('pause', () => togglePlayPause());
+    navigator.mediaSession.setActionHandler('previoustrack', () => playPrevTrack());
+    navigator.mediaSession.setActionHandler('nexttrack', () => playNextTrack());
+    // Mapear adelantar / retrasar (10s) para que cambien de canción directamente en iPhone y CarPlay
+    navigator.mediaSession.setActionHandler('seekforward', () => playNextTrack());
+    navigator.mediaSession.setActionHandler('seekbackward', () => playPrevTrack());
+    navigator.mediaSession.setActionHandler('stop', () => togglePlayPause());
+  } catch (e) {}
+}
+
 function updateMediaSession(track) {
-  if ('mediaSession' in navigator && track) {
+  if (!('mediaSession' in navigator) || !track) return;
+
+  try {
+    if ('audioSession' in navigator) {
+      navigator.audioSession.type = 'playback';
+    }
+  } catch (e) {}
+
+  try {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: track.title,
       artist: track.artist,
       album: track.album || "Spotify FASS",
       artwork: [
         { src: track.cover, sizes: '96x96', type: 'image/jpeg' },
+        { src: track.cover, sizes: '128x128', type: 'image/jpeg' },
+        { src: track.cover, sizes: '192x192', type: 'image/jpeg' },
         { src: track.cover, sizes: '256x256', type: 'image/jpeg' },
+        { src: track.cover, sizes: '384x384', type: 'image/jpeg' },
         { src: track.cover, sizes: '512x512', type: 'image/jpeg' }
       ]
     });
-
-    navigator.mediaSession.playbackState = state.isPlaying ? 'playing' : 'paused';
-
-    navigator.mediaSession.setActionHandler('play', () => togglePlayPause());
-    navigator.mediaSession.setActionHandler('pause', () => togglePlayPause());
-    navigator.mediaSession.setActionHandler('previoustrack', () => playPrevTrack());
-    navigator.mediaSession.setActionHandler('nexttrack', () => playNextTrack());
-    navigator.mediaSession.setActionHandler('seekto', (details) => {
-      if (details.seekTime !== undefined) seekTo(details.seekTime);
-    });
-
-    if ('setPositionState' in navigator.mediaSession && state.duration > 0) {
-      try {
-        navigator.mediaSession.setPositionState({
-          duration: state.duration,
-          playbackRate: 1,
-          position: Math.max(0, Math.min(state.currentTime, state.duration))
-        });
-      } catch (e) {}
-    }
+  } catch (e) {
+    console.warn("MediaMetadata error:", e);
   }
+
+  try {
+    navigator.mediaSession.playbackState = state.isPlaying ? 'playing' : 'paused';
+  } catch (e) {}
+
+  // 1. Play / Pause
+  try {
+    navigator.mediaSession.setActionHandler('play', () => togglePlayPause());
+  } catch (e) {}
+  try {
+    navigator.mediaSession.setActionHandler('pause', () => togglePlayPause());
+  } catch (e) {}
+
+  // 2. Control de Pista Siguiente [⏭] y Anterior [⏮] (Pantalla bloqueada / Apple CarPlay / Volante)
+  try {
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+      console.log("[MediaSession] Pista Anterior (⏮) solicitada");
+      playPrevTrack();
+    });
+  } catch (e) {}
+
+  try {
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+      console.log("[MediaSession] Pista Siguiente (⏭) solicitada");
+      playNextTrack();
+    });
+  } catch (e) {}
+
+  // 3. Interceptar botones de adelantar y retrasar en CarPlay y Lock Screen para CAMBIAR DE CANCIÓN
+  try {
+    navigator.mediaSession.setActionHandler('seekforward', () => {
+      console.log("[MediaSession] Botón de adelantar presionado -> Cambiando a siguiente canción");
+      playNextTrack();
+    });
+  } catch (e) {}
+
+  try {
+    navigator.mediaSession.setActionHandler('seekbackward', () => {
+      console.log("[MediaSession] Botón de retrasar presionado -> Cambiando a canción anterior");
+      playPrevTrack();
+    });
+  } catch (e) {}
+
+  try {
+    navigator.mediaSession.setActionHandler('stop', () => togglePlayPause());
+  } catch (e) {}
 }
 
 async function resolveYouTubeTrack(track) {
@@ -600,6 +673,9 @@ async function playTrack(track, playlistContext = null) {
   state.currentTrack = track;
   state.currentTime = 0;
   state.duration = track.duration || 180;
+
+  // Actualizar MediaSession inmediatamente para reflejar la nueva pista y controles en iPhone / iOS Lockscreen
+  updateMediaSession(track);
 
   // Set ambient background color
   updateAmbientGlow(track.color || "#1f3b2b");
@@ -847,11 +923,6 @@ function playNextTrack() {
 }
 
 function playPrevTrack() {
-  if (state.currentTime > 3) {
-    seekTo(0);
-    return;
-  }
-
   if (state.queue.length === 0) return;
 
   state.queueIndex--;
@@ -861,7 +932,9 @@ function playPrevTrack() {
 
   const prevTrack = state.queue[state.queueIndex];
   if (prevTrack) {
-    playTrack(prevTrack);
+    console.log("[Auto-Play] Cambiando a pista anterior:", prevTrack.title);
+    showToast(`Canción anterior: ${prevTrack.title} ⏮️`, "info");
+    playTrack(prevTrack, state.currentPlaylist);
   }
 }
 
@@ -3026,6 +3099,7 @@ function handleFileUploadToDrive(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
   initAudioEngines();
+  initMediaSession();
   initGreetings();
   renderQuickAccessGrid();
   renderShelves();
